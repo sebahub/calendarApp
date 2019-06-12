@@ -16,17 +16,16 @@ import locale
 import MySQLdb
 from MySQLdb import escape_string as thwart
 
+
 app = Flask(__name__)
+
 
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # Define mysql connection function
 def connection():
-    conn = MySQLdb.connect(host="127.0.0.1",
-                           user = "test",
-                           passwd = "123",
-                           db = "database")
+    conn = MySQLdb.connect(host="127.0.0.1", user = "test", passwd = "123", db = "database")
     c = conn.cursor()
     return c, conn
 
@@ -125,14 +124,6 @@ def holdatum():
     return jsonify(jsonStr)
 
 
-@app.route("/s")
-def user():
-    c, conn = connection()
-    x = c.execute("SELECT * FROM users")
-    x = c.fetchone()
-    print(x)
-    return redirect("/")
-
 @app.route("/t")
 def usert():
     c, conn = connection()
@@ -141,5 +132,19 @@ def usert():
     #rows = c.fetchone()
     print(uname)
 
+@app.route("/u")
+def rendertables():
+    cols = []
+    for gre in range (1, 25):
+        irg = gre
+        cells = []
+        cells.append(irg)
+        for ref in range (0, 7):
+            irg += 24
+            cells.append(irg)
+        cols.append(cells)
+    return render_template("tables.html", cols=cols)
+
 if __name__ == '__main__':
     app.run(debug=True)
+

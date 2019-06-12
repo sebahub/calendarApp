@@ -4,29 +4,31 @@ import os
 import flask
 
 
+from flask import Flask, flash, jsonify, json, redirect, render_template, request, session
 from flask_mysqldb import MySQL
-from flask import Flask, flash, jsonify, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
-
 from helpers import apology, login_required
+from datetime import date, datetime, timedelta
+import locale
+import MySQLdb
+from MySQLdb import escape_string as thwart
 
 app = Flask(__name__)
 
-mysql = MySQL(app)
-
-# MySQL configurations
-app.config['MYSQL_DATABASE_USER'] = 'test'
-app.config['MYSQL_DATABASE_PASSWORD'] = '123'
-app.config['MYSQL_DATABASE_DB'] = 'database'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
-
-mysql.init_app(app)
-
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+# Define mysql connection function
+def connection():
+    conn = MySQLdb.connect(host="127.0.0.1",
+                           user = "test",
+                           passwd = "123",
+                           db = "database")
+    c = conn.cursor()
+    return c, conn
 
 # Ensure responses aren't cached
 @app.after_request
@@ -49,15 +51,6 @@ def index():
     return apology("TODO")
 
 @app.route("/login", methods=["GET", "POST"])
-def users():
-    cur = mysql.connection.cursor()
-    cur.execute('''SELECT user, host FROM mysql.user''')
-    rv = cur.fetchall()
-    return str(rv)
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
 def login():
     """Log user in"""
 
@@ -76,14 +69,24 @@ def login():
             return apology("must provide password", 403)
 
         # Query database for username
-        rows = ("SELECT * FROM users WHERE username = :username", username=request.form.get("username"))
+        #rows = ("SELECT * FROM users WHERE username = :username", username=request.form.get("username"))
 
+        c, conn = connection()
+        uname = str(request.form.get("username"))
+        #debugging and pwhash workaround
+        pwhash = generate_password_hash(request.form.get("password"))
+        print(pwhash)
+        c.execute("UPDATE `users` SET pwhash = (%s) WHERE uname = (%s)", [pwhash, thwart(uname)])
+        rows = c.execute("SELECT * FROM users WHERE uname = (%s)", [thwart(uname)])
+        rows = c.fetchone()
+        print("pwhash: ", [rows[2]])
+        print("pwhash: ", [rows])
         # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
+        if not rows or not check_password_hash(rows[2], request.form.get("password")):
             return apology("invalid username and/or password", 403)
 
         # Remember which user has logged in
-        session["user_id"] = rows[0]["id"]
+        session["user_id"] = rows[0]
 
         # Redirect user to home page
         return redirect("/")
@@ -102,7 +105,41 @@ def logout():
     # Redirect user to login form
     return redirect("/")
 
+@app.route("/date")
+def holdatum():
+    deit = locale.getlocale()
+    locale.setlocale(locale.LC_TIME, deit)
+    #print(deit)
+    wochennummer = date.today().isocalendar()[1]
+    #heute = datetime.now()
+    heute = date.today()
+    heuteout = heute.strftime("%d. %B %Y")
+    start_of_week = heute - timedelta(days=heute.weekday())  # Monday
+    end_of_week = start_of_week + timedelta(days=6)
+    wosta = start_of_week.strftime("%d. %B %Y")
+    woend = end_of_week.strftime("%d. %B %Y")
+    jsonStr = {'Wochennummer' : wochennummer}
+    jsonStr.update( {'Heute' : heuteout} )
+    jsonStr.update( {'Wochenstart' : wosta} )
+    jsonStr.update( {'Wochenend' : woend} )
+    return jsonify(jsonStr)
 
 
+@app.route("/s")
+def user():
+    c, conn = connection()
+    x = c.execute("SELECT * FROM users")
+    x = c.fetchone()
+    print(x)
+    return redirect("/")
 
+@app.route("/t")
+def usert():
+    c, conn = connection()
+    uname = str(request.form.get("username"))
+    #rows = c.execute("SELECT * FROM users WHERE uname = (%s)", uname)
+    #rows = c.fetchone()
+    print(uname)
 
+if __name__ == '__main__':
+    app.run(debug=True)

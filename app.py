@@ -86,7 +86,7 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = rows[0]
-
+        print(session)
         # Redirect user to home page
         return redirect("/")
     
@@ -134,6 +134,8 @@ def usert():
 
 @app.route("/u")
 def rendertables():
+    #calculate values for table generator (cells in one row have 24 hours difference, html table built row by row)
+    #values for 24 rows in 7 columns 
     cols = []
     for gre in range (1, 25):
         irg = gre
@@ -143,7 +145,16 @@ def rendertables():
             irg += 24
             cells.append(irg)
         cols.append(cells)
-    return render_template("tables.html", cols=cols)
+    #calculate start and end dates of current week
+    heute = date.today()
+    start_of_week = heute - timedelta(days=heute.weekday())  # Monday
+    end_of_week = start_of_week + timedelta(days=6)
+    wosta = start_of_week.strftime("%d.%m.%Y")
+    woend = end_of_week.strftime("%d.%m.%Y")
+    wochennummer = date.today().isocalendar()[1]
+    print(session)
+
+    return render_template("tables.html", cols=cols, wosta=wosta, woend=woend, wochennummer=wochennummer)
 
 if __name__ == '__main__':
     app.run(debug=True)

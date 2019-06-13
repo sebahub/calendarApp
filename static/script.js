@@ -9,7 +9,6 @@ document.querySelector(".submit").addEventListener("click", function(){
 
 
 
-  var i;
   for (i = 0; i < checked.length; i++) { 
     var temp = checked[i].parentElement;
     temp.classList.add("hotpink")

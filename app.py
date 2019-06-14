@@ -105,6 +105,7 @@ def logout():
     return redirect("/")
 
 @app.route("/date")
+@login_required
 def holdatum():
     deit = locale.getlocale()
     locale.setlocale(locale.LC_TIME, deit)
@@ -113,7 +114,7 @@ def holdatum():
     #heute = datetime.now()
     heute = date.today()
     heuteout = heute.strftime("%d. %B %Y")
-    start_of_week = heute - timedelta(days=heute.weekday())  # Monday
+    start_of_week = heute - timedelta(days=heute.weekday())
     end_of_week = start_of_week + timedelta(days=6)
     wosta = start_of_week.strftime("%d. %B %Y")
     woend = end_of_week.strftime("%d. %B %Y")
@@ -133,6 +134,7 @@ def usert():
     print(uname)
 
 @app.route("/u")
+#@login_required
 def rendertables():
     #calculate values for table generator (cells in one row have 24 hours difference, html table built row by row)
     #values for 24 rows in 7 columns 
@@ -155,6 +157,8 @@ def rendertables():
     print(session)
 
     return render_template("tables.html", cols=cols, wosta=wosta, woend=woend, wochennummer=wochennummer)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

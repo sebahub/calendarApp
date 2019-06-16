@@ -134,7 +134,7 @@ def usert():
     print(uname)
 
 @app.route("/u")
-#@login_required
+@login_required
 def rendertables():
     #calculate values for table generator (cells in one row have 24 hours difference, html table built row by row)
     #values for 24 rows in 7 columns 
@@ -158,7 +158,29 @@ def rendertables():
 
     return render_template("tables.html", cols=cols, wosta=wosta, woend=woend, wochennummer=wochennummer)
 
-
+@app.route("/res")
+@login_required
+def sendres():
+    c, conn = connection()
+    res = {}
+    #res_self = c.execute("SELECT feld FROM reservation WHERE user = (%s)", [session["user_id"]])
+    #res_self = c.fetchall()
+    #res.update( { 'self' : res_self } )
+    #print(res)
+    res_and = c.execute("SELECT * FROM reservation")
+    res_and = c.fetchall()
+    print(res_and)
+    for el in res_and:
+        if el[0] == str(session["user_id"]):
+            key = "self"
+            res.setdefault(key, [])
+            res["self"].append(el[1])
+        else:
+            key = el[0]
+            res.setdefault(key, [])
+            res[el[0]].append(el[1])
+    print(res)
+    return jsonify(res)
 
 if __name__ == '__main__':
     app.run(debug=True)

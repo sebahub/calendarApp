@@ -143,7 +143,7 @@ def rendertables():
         irg = gre
         cells = []
         cells.append(irg)
-        for ref in range (0, 7):
+        for ref in range (0, 6):
             irg += 24
             cells.append(irg)
         cols.append(cells)
@@ -155,7 +155,6 @@ def rendertables():
     woend = end_of_week.strftime("%d.%m.%Y")
     wochennummer = date.today().isocalendar()[1]
     print(session)
-
     return render_template("tables.html", cols=cols, wosta=wosta, woend=woend, wochennummer=wochennummer)
 
 @app.route("/res")
@@ -163,10 +162,6 @@ def rendertables():
 def sendres():
     c, conn = connection()
     res = {}
-    #res_self = c.execute("SELECT feld FROM reservation WHERE user = (%s)", [session["user_id"]])
-    #res_self = c.fetchall()
-    #res.update( { 'self' : res_self } )
-    #print(res)
     res_and = c.execute("SELECT * FROM reservation")
     res_and = c.fetchall()
     print(res_and)
@@ -181,6 +176,44 @@ def sendres():
             res[el[0]].append(el[1])
     print(res)
     return jsonify(res)
+
+@app.route("/dores", methods=["GET"])
+@login_required
+def machres():
+    res_cell = request.args.get("dores")
+    res_cell = int(res_cell)
+    res_offset = request.args.get("offset")
+    res_offset = int(res_offset)
+    print(res_cell)
+    #print(res_offset)
+    c, conn = connection()
+    uid = session["user_id"]
+    c.execute("SELECT * FROM reservation WHERE `feld` = (%s) AND `wochenoffset` = (%s)", [conn.escape(res_cell),  conn.escape(res_offset)])
+    checkentry = c.fetchall()
+    print(checkentry)
+    if not checkentry:
+        c.execute("INSERT INTO reservation (`user`, `feld`, `wochenoffset`) VALUES ((%s), (%s), (%s))", [uid, res_cell, res_offset])
+        conn.commit()
+    return("aff")
+
+@app.route("/remres", methods=["GET"])
+@login_required
+def delres():
+    del_cell = request.args.get("delres")
+    del_cell = int(del_cell)
+    week = request.args.get("offset")
+    week = int(week)
+    c, conn = connection()
+    uid = session["user_id"]
+    c.execute("SELECT * FROM reservation WHERE `feld` = (%s) AND `wochenoffset` = (%s) AND `user` = (%s)", [conn.escape(del_cell),  conn.escape(week), uid])
+    checkentry = c.fetchall()
+    if checkentry is None:
+        return("bleder aff!")
+    else:
+        c.execute("DELETE FROM reservation WHERE `feld` = (%s) AND `wochenoffset` = (%s) AND `user` = (%s)", [conn.escape(del_cell),  conn.escape(week), uid])
+        conn.commit()
+        return("DELETETEETETETE")
+
 
 if __name__ == '__main__':
     app.run(debug=True)

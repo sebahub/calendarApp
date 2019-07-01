@@ -1,14 +1,33 @@
 var checks = document.getElementsByClassName("reserve");
+var weekoffset = 0;
 
 for (elem of checks) {
   elem.addEventListener("click", function(){
     if (this.checked == true) {
       console.log(this.getAttribute("value"));
+      rescell = this.getAttribute("value");
       this.parentElement.classList.add("hotpink");
+      xhttp2 = new XMLHttpRequest();
+      xhttp2.onreadystatechange = function() {
+        if (xhttp2.readyState == 4 && xhttp2.status == 200) {
+          console.log(xhttp2.responseText);
+        }
+      };
+      xhttp2.open("GET", "/dores?dores=" + rescell + "&offset=" + weekoffset, true);
+      xhttp2.send();
     }
     else if (this.checked == false) {
       console.log("Unregistered:", this.getAttribute("value"));
       this.parentElement.classList.remove("hotpink");
+      rescell2 = this.getAttribute("value");
+      xhttp2 = new XMLHttpRequest();
+      xhttp2.onreadystatechange = function() {
+        if (xhttp2.readyState == 4 && xhttp2.status == 200) {
+          console.log(xhttp2.responseText);
+        }
+      };
+      xhttp2.open("GET", "/remres?delres=" + rescell2 + "&offset=" + weekoffset, true);
+      xhttp2.send(); 
     }
   })}
 
@@ -20,7 +39,6 @@ for (elem of checks) {
       response = this.responseText;
       var jsonobj = JSON.parse(response);
       console.log(jsonobj);
-      var txt;
       /**if reservation for current user exists loop through the date-values */
       if (jsonobj.self) {
         for (i = 0; i < jsonobj.self.length; i++) {
@@ -31,24 +49,24 @@ for (elem of checks) {
             if(allInputs[x].value == jsonobj.self[i]) {
             selfchecks = allInputs[x];
             selfchecks.parentElement.style.backgroundColor = "blue";
+            selfchecks.checked = true;
             }
           }
         }
       }
-      if (jsonobj.length > 0) {}
       /**if reservation dates exist, iterate through the list of date values per band-id element (user id) */
       for (bandn in jsonobj) {
         if (bandn != "self") {
           console.log(bandn);
           var tmp = jsonobj[bandn];
-          /** loop through the dates in each band-id entry and get the corrsponding checkboxes (according to their values) */
+          /** loop through the dates in each band-id entry and get the corresponding checkboxes (according to their values) */
           for (t = 0; t < tmp.length; t++) {
-            tmp = tmp[t];
-            console.log(tmp);
+            tmp1 = tmp[t];
+            console.log(tmp1);
             var allInputs = document.getElementsByTagName("input");
             var disa;
             for(x=0;x<allInputs.length;x++) {
-              if(allInputs[x].value == tmp) {
+              if(allInputs[x].value == tmp1) {
               disa = allInputs[x];
               disa.disabled = true;
               disa.parentElement.style.backgroundColor = "darkred";

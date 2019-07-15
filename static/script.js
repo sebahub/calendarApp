@@ -1,6 +1,41 @@
-var checks = document.getElementsByClassName("reserve");
-var weekoffset = 0;
+var week = 0;
+var woche_von = "";
+var woche_bis = "";
 
+var nextweek = document.getElementById("forwb");
+nextweek.addEventListener("click", function(){
+    week++;
+    dateget(week);
+    document.getElementById("wochennummer").innerHTML = "Woche " + week;
+    document.getElementById("woche_von_bis").innerHTML = woche_von + " - " + woche_bis;
+    remclass();
+    populateres(week);
+    calldates(week);
+  });
+
+var prevweek = document.getElementById("nextb");
+prevweek.addEventListener("click", function(){
+    week--;
+    dateget(week);
+    document.getElementById("wochennummer").innerHTML = "Woche " + week;
+    document.getElementById("woche_von_bis").innerHTML = woche_von + " - " + woche_bis;
+    remclass();
+    populateres(week);
+    calldates(week);
+  });
+
+function remclass() {
+  var checks = document.getElementsByClassName("reserve");
+  for (elem of checks) {
+    elem.parentElement.className = "";
+    elem.checked = false;
+    elem.disabled = false;
+  }
+}
+
+function populateres(week) {
+weekoffset = week;
+var checks = document.getElementsByClassName("reserve");
 for (elem of checks) {
   elem.addEventListener("click", function(){
     if (this.checked == true) {
@@ -18,7 +53,7 @@ for (elem of checks) {
     }
     else if (this.checked == false) {
       console.log("Unregistered:", this.getAttribute("value"));
-      this.parentElement.classList.remove("hotpink");
+      this.parentElement.className = "";
       rescell2 = this.getAttribute("value");
       xhttp2 = new XMLHttpRequest();
       xhttp2.onreadystatechange = function() {
@@ -30,7 +65,11 @@ for (elem of checks) {
       xhttp2.send(); 
     }
   })}
+}
 
+
+function calldates(week) {
+  weekoffset = week;
 /* create and send ajax request; */
   xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
@@ -48,7 +87,7 @@ for (elem of checks) {
           for(var x=0;x<allInputs.length;x++) {
             if(allInputs[x].value == jsonobj.self[i]) {
             selfchecks = allInputs[x];
-            selfchecks.parentElement.style.backgroundColor = "blue";
+            selfchecks.parentElement.classList.add("self");
             selfchecks.checked = true;
             }
           }
@@ -60,7 +99,8 @@ for (elem of checks) {
           console.log(bandn);
           var tmp = jsonobj[bandn];
           /** loop through the dates in each band-id entry and get the corresponding checkboxes (according to their values) */
-          for (t = 0; t < tmp.length; t++) {
+          for (t = 0; t < tmp.length; t++) 
+          {
             tmp1 = tmp[t];
             console.log(tmp1);
             var allInputs = document.getElementsByTagName("input");
@@ -69,7 +109,7 @@ for (elem of checks) {
               if(allInputs[x].value == tmp1) {
               disa = allInputs[x];
               disa.disabled = true;
-              disa.parentElement.style.backgroundColor = "darkred";
+              disa.parentElement.classList.add("band1");
               }
             }
           }
@@ -77,10 +117,27 @@ for (elem of checks) {
         }
       }
     };
-  xhttp.open("GET", "/res", true);
+  xhttp.open("GET", "/res?week=" + weekoffset, true);
   xhttp.send(); 
-
+  }
   
+window.onload = function dateget(woch) {
+    xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      response = this.responseText;
+      var jsonobj = JSON.parse(response);
+      week = jsonobj.Wochennummer;
+      woche_von = jsonobj.Wochenstart;
+      woche_bis = jsonobj.Wochenend;
+      populateres(week);
+      calldates(week);
+    }
+  }
+    xhttp.open("GET", "/date?week=" + woch, true);
+    xhttp.send();
+    };
+
 
     // Query for only the checked checkboxes and put the result in an array
     /*

@@ -71,4 +71,14 @@ input[type="checkbox"] {
   left: 50%; }
 
 .hotpink {
-  background: yellow; }
+  background: yellow; 
+}
+
+.self {
+  background: rgb(0, 183, 255); 
+}
+
+.band1 {
+  background: rgb(71, 201, 66); 
+}
+

@@ -157,12 +157,14 @@ def rendertables():
     print(session)
     return render_template("tables.html", cols=cols, wosta=wosta, woend=woend, wochennummer=wochennummer)
 
-@app.route("/res")
+@app.route("/res", methods=["GET"])
 @login_required
 def sendres():
+    week = request.args.get("week")
+    week = int(week)
     c, conn = connection()
     res = {}
-    res_and = c.execute("SELECT * FROM reservation")
+    res_and = c.execute("SELECT * FROM reservation WHERE `wochenoffset` = %s", [conn.escape(week)])
     res_and = c.fetchall()
     print(res_and)
     for el in res_and:
@@ -207,9 +209,10 @@ def delres():
     uid = session["user_id"]
     c.execute("SELECT * FROM reservation WHERE `feld` = (%s) AND `wochenoffset` = (%s) AND `user` = (%s)", [conn.escape(del_cell),  conn.escape(week), uid])
     checkentry = c.fetchall()
-    if checkentry is None:
+    if not checkentry:
         return("bleder aff!")
     else:
+        print(checkentry);
         c.execute("DELETE FROM reservation WHERE `feld` = (%s) AND `wochenoffset` = (%s) AND `user` = (%s)", [conn.escape(del_cell),  conn.escape(week), uid])
         conn.commit()
         return("DELETETEETETETE")

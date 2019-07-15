@@ -12,12 +12,12 @@
       <header>
         <div class="year-week">
           <h4 class="year">2019</h4>
-          <h4 class="week">Woche {{  wochennummer  }}</h4>
+          <h4 id="wochennummer" class="week">Woche {{  wochennummer  }}</h4>
         </div>
         <div class="flex">
-          <button class="back"> </button>
-          <h3 class="date">{{  wosta  }} - {{  woend  }}</h3>
-          <button class="forw"></button>
+          <button class="back" id="nextb"> </button>
+          <h3 id="woche_von_bis" class="date">{{  wosta  }} - {{  woend  }}</h3>
+          <button class="forw" id="forwb"></button>
         </div>
         <button id="submit" class="submit" type="submit">Submit</button>
       </header>

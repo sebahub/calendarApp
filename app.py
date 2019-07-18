@@ -104,16 +104,22 @@ def logout():
     # Redirect user to login form
     return redirect("/")
 
-@app.route("/date")
+@app.route("/date", methods=["GET"])
 @login_required
 def holdatum():
+    weekoffset = request.args.get("week")
+    print(weekoffset)
+    if weekoffset == "undefined":
+        weekoffset = 0
     deit = locale.getlocale()
     locale.setlocale(locale.LC_TIME, deit)
     #print(deit)
-    wochennummer = date.today().isocalendar()[1]
+    weekoffset = int(weekoffset)
+    dayoffset = weekoffset * 7
+    heute = date.today() + timedelta(days=dayoffset)
+    wochennummer = heute.isocalendar()[1]
     #heute = datetime.now()
-    heute = date.today()
-    heuteout = heute.strftime("%d. %B %Y")
+    heuteout = heute.strftime("%d.%m.%Y")
     start_of_week = heute - timedelta(days=heute.weekday())
     end_of_week = start_of_week + timedelta(days=6)
     wosta = start_of_week.strftime("%d. %B %Y")

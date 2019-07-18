@@ -1,4 +1,5 @@
 var week = 0;
+var woche;
 var woche_von = "";
 var woche_bis = "";
 
@@ -6,23 +7,20 @@ var nextweek = document.getElementById("forwb");
 nextweek.addEventListener("click", function(){
     week++;
     dateget(week);
-    document.getElementById("wochennummer").innerHTML = "Woche " + week;
-    document.getElementById("woche_von_bis").innerHTML = woche_von + " - " + woche_bis;
     remclass();
-    populateres(week);
-    calldates(week);
   });
 
 var prevweek = document.getElementById("nextb");
 prevweek.addEventListener("click", function(){
     week--;
     dateget(week);
-    document.getElementById("wochennummer").innerHTML = "Woche " + week;
-    document.getElementById("woche_von_bis").innerHTML = woche_von + " - " + woche_bis;
     remclass();
-    populateres(week);
-    calldates(week);
   });
+
+function updateweek() {
+  document.getElementById("wochennummer").innerHTML = "Woche " + woche;
+  document.getElementById("woche_von_bis").innerHTML = woche_von + " - " + woche_bis;
+}
 
 function remclass() {
   var checks = document.getElementsByClassName("reserve");
@@ -33,8 +31,8 @@ function remclass() {
   }
 }
 
-function populateres(week) {
-weekoffset = week;
+function populateres(woche2) {
+weekoffset = woche2;
 var checks = document.getElementsByClassName("reserve");
 for (elem of checks) {
   elem.addEventListener("click", function(){
@@ -68,8 +66,8 @@ for (elem of checks) {
 }
 
 
-function calldates(week) {
-  weekoffset = week;
+function calldates(woche1) {
+  weekoffset = woche1;
 /* create and send ajax request; */
   xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
@@ -121,23 +119,27 @@ function calldates(week) {
   xhttp.send(); 
   }
   
-window.onload = function dateget(woch) {
+
+
+function dateget(woch) {
     xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
       response = this.responseText;
       var jsonobj = JSON.parse(response);
-      week = jsonobj.Wochennummer;
       woche_von = jsonobj.Wochenstart;
       woche_bis = jsonobj.Wochenend;
-      populateres(week);
-      calldates(week);
+      woche = jsonobj.Wochennummer;
+      updateweek();
+      populateres(woche);
+      calldates(woche);
     }
   }
     xhttp.open("GET", "/date?week=" + woch, true);
     xhttp.send();
     };
 
+window.onload = dateget();
 
     // Query for only the checked checkboxes and put the result in an array
     /*

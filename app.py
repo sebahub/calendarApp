@@ -122,12 +122,14 @@ def holdatum():
     heuteout = heute.strftime("%d.%m.%Y")
     start_of_week = heute - timedelta(days=heute.weekday())
     end_of_week = start_of_week + timedelta(days=6)
-    wosta = start_of_week.strftime("%d. %B %Y")
-    woend = end_of_week.strftime("%d. %B %Y")
+    wosta = start_of_week.strftime("%d. %B")
+    woend = end_of_week.strftime("%d. %B")
+    jahr = heute.strftime("%Y")
     jsonStr = {'Wochennummer' : wochennummer}
     jsonStr.update( {'Heute' : heuteout} )
     jsonStr.update( {'Wochenstart' : wosta} )
     jsonStr.update( {'Wochenend' : woend} )
+    jsonStr.update( {'Jahr' : jahr} )
     return jsonify(jsonStr)
 
 

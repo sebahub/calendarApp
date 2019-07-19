@@ -2,6 +2,7 @@ var week = 0;
 var woche;
 var woche_von = "";
 var woche_bis = "";
+var jahr = 0;
 
 var nextweek = document.getElementById("forwb");
 nextweek.addEventListener("click", function(){
@@ -20,6 +21,7 @@ prevweek.addEventListener("click", function(){
 function updateweek() {
   document.getElementById("wochennummer").innerHTML = "Woche " + woche;
   document.getElementById("woche_von_bis").innerHTML = woche_von + " - " + woche_bis;
+  document.getElementById("year").innerHTML = jahr;
 }
 
 function remclass() {
@@ -37,7 +39,6 @@ var checks = document.getElementsByClassName("reserve");
 for (elem of checks) {
   elem.addEventListener("click", function(){
     if (this.checked == true) {
-      console.log(this.getAttribute("value"));
       rescell = this.getAttribute("value");
       this.parentElement.classList.add("hotpink");
       xhttp2 = new XMLHttpRequest();
@@ -45,7 +46,7 @@ for (elem of checks) {
         if (xhttp2.readyState == 4 && xhttp2.status == 200) {
           console.log(xhttp2.responseText);
         }
-      };
+      }
       xhttp2.open("GET", "/dores?dores=" + rescell + "&offset=" + weekoffset, true);
       xhttp2.send();
     }
@@ -62,7 +63,8 @@ for (elem of checks) {
       xhttp2.open("GET", "/remres?delres=" + rescell2 + "&offset=" + weekoffset, true);
       xhttp2.send(); 
     }
-  })}
+  });
+}
 }
 
 
@@ -130,8 +132,8 @@ function dateget(woch) {
       woche_von = jsonobj.Wochenstart;
       woche_bis = jsonobj.Wochenend;
       woche = jsonobj.Wochennummer;
+      jahr = jsonobj.Jahr;
       updateweek();
-      populateres(woche);
       calldates(woche);
     }
   }
@@ -140,6 +142,7 @@ function dateget(woch) {
     };
 
 window.onload = dateget();
+window.onload = populateres(woche);
 
     // Query for only the checked checkboxes and put the result in an array
     /*

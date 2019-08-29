@@ -111,8 +111,7 @@ def holdatum():
     print(weekoffset)
     if weekoffset == "undefined":
         weekoffset = 0
-    deit = locale.getlocale()
-    locale.setlocale(locale.LC_TIME, deit)
+    locale.setlocale(locale.LC_TIME, 'de_DE')
     #print(deit)
     weekoffset = int(weekoffset)
     dayoffset = weekoffset * 7
@@ -170,9 +169,11 @@ def rendertables():
 def sendres():
     week = request.args.get("week")
     week = int(week)
+    jahr = request.args.get("jahr")
+    jahr = int(jahr)
     c, conn = connection()
     res = {}
-    res_and = c.execute("SELECT * FROM reservation WHERE `wochenoffset` = %s", [conn.escape(week)])
+    res_and = c.execute("SELECT * FROM reservation WHERE `wochenoffset` = (%s) AND `jahr` = (%s)", [conn.escape(week), conn.escape(jahr)])
     res_and = c.fetchall()
     print(res_and)
     for el in res_and:
@@ -194,15 +195,17 @@ def machres():
     res_cell = int(res_cell)
     res_offset = request.args.get("offset")
     res_offset = int(res_offset)
+    res_jahr = request.args.get("jahr")
+    res_jahr = int(res_jahr)
     print(res_cell)
     #print(res_offset)
     c, conn = connection()
     uid = session["user_id"]
-    c.execute("SELECT * FROM reservation WHERE `feld` = (%s) AND `wochenoffset` = (%s)", [conn.escape(res_cell),  conn.escape(res_offset)])
+    c.execute("SELECT * FROM reservation WHERE `feld` = (%s) AND `wochenoffset` = (%s) AND 'jahr' = (%s)", [conn.escape(res_cell),  conn.escape(res_offset), conn.escape(res_jahr)])
     checkentry = c.fetchall()
     print(checkentry)
     if not checkentry:
-        c.execute("INSERT INTO reservation (`user`, `feld`, `wochenoffset`) VALUES ((%s), (%s), (%s))", [uid, res_cell, res_offset])
+        c.execute("INSERT INTO reservation (`user`, `feld`, `wochenoffset`, `jahr`) VALUES ((%s), (%s), (%s), (%s))", [uid, res_cell, res_offset, res_jahr])
         conn.commit()
     return("aff")
 

@@ -47,7 +47,7 @@ for (elem of checks) {
           console.log(xhttp2.responseText);
         }
       }
-      xhttp2.open("GET", "/dores?dores=" + rescell + "&offset=" + weekoffset, true);
+      xhttp2.open("GET", "/dores?dores=" + rescell + "&offset=" + weekoffset + "&jahr=" + jahr, true);
       xhttp2.send();
     }
     else if (this.checked == false) {
@@ -60,7 +60,7 @@ for (elem of checks) {
           console.log(xhttp2.responseText);
         }
       };
-      xhttp2.open("GET", "/remres?delres=" + rescell2 + "&offset=" + weekoffset, true);
+      xhttp2.open("GET", "/remres?delres=" + rescell2 + "&offset=" + weekoffset + "&jahr=" + jahr, true);
       xhttp2.send(); 
     }
   });
@@ -117,7 +117,7 @@ function calldates(woche1) {
         }
       }
     };
-  xhttp.open("GET", "/res?week=" + weekoffset, true);
+  xhttp.open("GET", "/res?week=" + weekoffset + "&jahr=" + jahr, true);
   xhttp.send(); 
   }
   
